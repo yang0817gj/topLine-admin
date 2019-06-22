@@ -6,11 +6,11 @@
         <img src="./logo_index.png" alt="黑马头条">
       </div>
       <div class="login-form">
-        <el-form ref="form" :model="loginForm">
-          <el-form-item>
-            <el-input v-model="loginForm.modile" placeholder="手机号"></el-input>
+        <el-form ref="loginForm" :model="loginForm" :rules="rules">
+          <el-form-item prop="mobile">
+            <el-input v-model="loginForm.mobile" placeholder="手机号"></el-input>
           </el-form-item>
-          <el-form-item>
+          <el-form-item prop="code">
             <el-col :span="10">
               <el-input v-model="loginForm.code" placeholder="验证码"></el-input>
             </el-col>
@@ -20,7 +20,7 @@
           </el-form-item>
           <el-form-item>
             <!-- 给组件加class 会作用到它的根元素 -->
-            <el-button class="btn-login" type="primary" @click="onSubmit">登录</el-button>
+            <el-button class="btn-login" type="primary" @click="handleLogin" :loading="loginLoading">登录</el-button>
           </el-form-item>
         </el-form>
       </div>
@@ -33,22 +33,62 @@ import axios from 'axios'
 import '@/vendor/gt.js' // gt.js 会向全局 window 暴露一个函数 initGeetest 处理极验 验证码用的
 
 export default {
-  name: 'AppHome',
+  name: 'AppLogin',
   data () {
     return {
       loginForm: {
-        modile: '13273519987',
+        mobile: '13273519986',
         code: ''
       },
-      captchaObj: null // 通过initGeetest 的得到极验对象
+      loginLoading: false, // 登录按钮的 loading 状态
+      captchaObj: null, // 通过initGeetest 的得到极验对象
+      rules: { // 表单验证规则
+        mobile: [
+          { required: true, message: '请输入正确的手机号', trigger: 'blur' },
+          { len: 11, message: '手机号长度应为11位', trigger: 'blur' }
+        ],
+        code: [
+          { required: true, message: '请输入验证码', trigger: 'blur' },
+          { len: 6, message: '验证码应为6个字符', trigger: 'blur' }
+        ]
+      }
     }
   },
   methods: {
-    onSubmit () {
-
+    handleLogin () {
+      this.$refs['loginForm'].validate((valid) => {
+        if (!valid) {
+          return
+        }
+        this.submitLogin()
+      })
+    },
+    submitLogin () {
+      this.loginLoading = true
+      axios({
+        method: 'POST',
+        url: 'http://ttapi.research.itcast.cn/mp/v1_0/authorizations',
+        data: this.loginForm
+      }).then(res => { // 200 400 之间
+        this.loginLoading = false
+        //  element 提供了Message 消息提供组件
+        //  这也是组件调用的一种形式
+        this.$message({
+          message: '恭喜你，登录成功',
+          type: 'success'
+        })
+        this.$router.push({
+          name: 'home'
+        })
+      }).catch(err => { // 大于400
+        if (err.response.status === 400) {
+          this.$message.error('登录失败，手机号或者验证码不对')
+        }
+        this.loginLoading = false
+      })
     },
     handleSendCode () {
-      const { modile } = this.loginForm
+      const { mobile } = this.loginForm
       //  判断captchaObj对象存在，就不需要从新从服务器获取
       if (this.captchaObj) {
         return this.captchaObj.verify()
@@ -56,7 +96,7 @@ export default {
 
       axios({
         method: 'GET',
-        url: `http://ttapi.research.itcast.cn/mp/v1_0/captchas/${modile}`
+        url: `http://ttapi.research.itcast.cn/mp/v1_0/captchas/${mobile}`
       }).then(res => {
         // console.log(res)
         const data = res.data.data
@@ -80,7 +120,7 @@ export default {
             //  调用 获取短信验证码 APL2 接口，发送短信
             axios({
               method: 'GET',
-              url: `http://ttapi.research.itcast.cn/mp/v1_0/sms/codes/${modile}`,
+              url: `http://ttapi.research.itcast.cn/mp/v1_0/sms/codes/${mobile}`,
               params: { // 专门用来传递 qeury 查询字符串参数
                 challenge,
                 seccode,
