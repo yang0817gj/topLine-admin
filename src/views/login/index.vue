@@ -49,7 +49,7 @@ export default {
     },
     handleSendCode () {
       const { modile } = this.loginForm
-
+      //  判断captchaObj对象存在，就不需要从新从服务器获取
       if (this.captchaObj) {
         return this.captchaObj.verify()
       }
@@ -58,7 +58,7 @@ export default {
         method: 'GET',
         url: `http://ttapi.research.itcast.cn/mp/v1_0/captchas/${modile}`
       }).then(res => {
-        console.log(res)
+        // console.log(res)
         const data = res.data.data
         window.initGeetest({
           gt: data.gt,
@@ -71,7 +71,24 @@ export default {
           captchaObj.onReady(function () {
             captchaObj.verify()
           }).onSuccess(function () {
-
+            // console.log(captchaObj.getValidate())
+            const {
+              geetest_challenge: challenge,
+              geetest_seccode: seccode,
+              geetest_validate: validate } =
+            captchaObj.getValidate()
+            //  调用 获取短信验证码 APL2 接口，发送短信
+            axios({
+              method: 'GET',
+              url: `http://ttapi.research.itcast.cn/mp/v1_0/sms/codes/${modile}`,
+              params: { // 专门用来传递 qeury 查询字符串参数
+                challenge,
+                seccode,
+                validate
+              }
+            }).then(res => {
+              console.log(res)
+            })
           }).onError(function () {
           })
         })
