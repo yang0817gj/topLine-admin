@@ -30,6 +30,7 @@
 
 <script>
 import axios from 'axios'
+import '@/vendor/gt.js' // gt.js 会向全局 window 暴露一个函数 initGeetest 处理极验 验证码用的
 
 export default {
   name: 'AppHome',
