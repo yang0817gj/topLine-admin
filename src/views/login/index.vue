@@ -6,16 +6,16 @@
         <img src="./logo_index.png" alt="黑马头条">
       </div>
       <div class="login-form">
-        <el-form ref="form" :model="form">
+        <el-form ref="form" :model="loginForm">
           <el-form-item>
-            <el-input v-model="form.modile" placeholder="手机号"></el-input>
+            <el-input v-model="loginForm.modile" placeholder="手机号"></el-input>
           </el-form-item>
           <el-form-item>
             <el-col :span="10">
-              <el-input v-model="form.code" placeholder="验证码"></el-input>
+              <el-input v-model="loginForm.code" placeholder="验证码"></el-input>
             </el-col>
-            <el-col :span="6" offset="3">
-              <el-button >获取验证码</el-button>
+            <el-col :span="6" :offset="2">
+              <el-button @click="handleSendCode">获取验证码</el-button>
             </el-col>
           </el-form-item>
           <el-form-item>
@@ -29,12 +29,14 @@
 </template>
 
 <script>
+import axios from 'axios'
+
 export default {
   name: 'AppHome',
   data () {
     return {
-      form: {
-        modile: '',
+      loginForm: {
+        modile: '13273519987',
         code: ''
       }
     }
@@ -42,6 +44,15 @@ export default {
   methods: {
     onSubmit () {
 
+    },
+    handleSendCode () {
+      const { modile } = this.loginForm
+      axios({
+        method: 'GET',
+        url: `http://ttapi.research.itcast.cn/mp/v1_0/captchas/${modile}`
+      }).then(res => {
+        console.log(res)
+      })
     }
   }
 }
