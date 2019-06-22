@@ -39,7 +39,8 @@ export default {
       loginForm: {
         modile: '13273519987',
         code: ''
-      }
+      },
+      captchaObj: null // 通过initGeetest 的得到极验对象
     }
   },
   methods: {
@@ -48,11 +49,32 @@ export default {
     },
     handleSendCode () {
       const { modile } = this.loginForm
+
+      if (this.captchaObj) {
+        return this.captchaObj.verify()
+      }
+
       axios({
         method: 'GET',
         url: `http://ttapi.research.itcast.cn/mp/v1_0/captchas/${modile}`
       }).then(res => {
         console.log(res)
+        const data = res.data.data
+        window.initGeetest({
+          gt: data.gt,
+          challenge: data.challenge,
+          offline: !data.success,
+          new_captcha: data.new_captcha,
+          product: 'bind'
+        }, (captchaObj) => {
+          this.captchaObj = captchaObj
+          captchaObj.onReady(function () {
+            captchaObj.verify()
+          }).onSuccess(function () {
+
+          }).onError(function () {
+          })
+        })
       })
     }
   }
