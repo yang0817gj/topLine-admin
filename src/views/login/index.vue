@@ -35,14 +35,13 @@
 <script>
 import axios from 'axios'
 import '@/vendor/gt.js' // gt.js 会向全局 window 暴露一个函数 initGeetest 处理极验 验证码用的
-// import { clearInterval } from 'timers'
 
 export default {
   name: 'AppLogin',
   data () {
     return {
       loginForm: {
-        mobile: '13273519986',
+        mobile: '13273519985',
         code: '',
         agree: ''
       },
@@ -101,7 +100,18 @@ export default {
       })
     },
     handleSendCode () {
+      this.$refs['loginForm'].validateField('mobile', (errorMessage) => {
+        console.log(errorMessage)
+        if (errorMessage.trim().length > 0) {
+          return
+        }
+        this.showGeetest()
+      })
+    },
+    showGeetest () {
       const { mobile } = this.loginForm
+      console.log(111)
+
       //  判断captchaObj对象存在，就不需要从新从服务器获取
       if (this.captchaObj) {
         return this.captchaObj.verify()
