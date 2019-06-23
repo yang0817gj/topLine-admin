@@ -14,9 +14,13 @@
             <el-col :span="10">
               <el-input v-model="loginForm.code" placeholder="验证码"></el-input>
             </el-col>
-            <el-col :span="6" :offset="2">
-              <el-button @click="handleSendCode">获取验证码</el-button>
+            <el-col class="seed" :span="6" :offset="2">
+              <el-button @click="handleSendCode">{{text}}</el-button>
             </el-col>
+          </el-form-item>
+          <el-form-item prop="agree">
+            <el-checkbox v-model="loginForm.agree"></el-checkbox>
+            <span>我已阅读并同意<a href="#">用户协议</a>和<a href="#">隐私条款</a></span>
           </el-form-item>
           <el-form-item>
             <!-- 给组件加class 会作用到它的根元素 -->
@@ -31,6 +35,7 @@
 <script>
 import axios from 'axios'
 import '@/vendor/gt.js' // gt.js 会向全局 window 暴露一个函数 initGeetest 处理极验 验证码用的
+// import { clearInterval } from 'timers'
 
 export default {
   name: 'AppLogin',
@@ -38,7 +43,8 @@ export default {
     return {
       loginForm: {
         mobile: '13273519986',
-        code: ''
+        code: '',
+        agree: ''
       },
       loginLoading: false, // 登录按钮的 loading 状态
       captchaObj: null, // 通过initGeetest 的得到极验对象
@@ -50,8 +56,15 @@ export default {
         code: [
           { required: true, message: '请输入验证码', trigger: 'blur' },
           { len: 6, message: '验证码应为6个字符', trigger: 'blur' }
+        ],
+        agree: [
+          { required: true, message: '请同意用户协议', trigger: 'change' },
+          { pattern: /true/, message: '请同意用户协议', trigger: 'change' }
         ]
-      }
+      },
+      text: '获取验证码',
+      flag: null,
+      count: 60
     }
   },
   methods: {
@@ -98,7 +111,6 @@ export default {
         method: 'GET',
         url: `http://ttapi.research.itcast.cn/mp/v1_0/captchas/${mobile}`
       }).then(res => {
-        // console.log(res)
         const data = res.data.data
         window.initGeetest({
           gt: data.gt,
@@ -110,8 +122,16 @@ export default {
           this.captchaObj = captchaObj
           captchaObj.onReady(function () {
             captchaObj.verify()
-          }).onSuccess(function () {
-            // console.log(captchaObj.getValidate())
+          }).onSuccess(() => {
+            var count = this.count
+            this.flag = window.setInterval(() => {
+              count--
+              this.text = count + '后从新发送'
+              if (count === 55) {
+                window.clearInterval(this.flag)
+                this.text = '获取验证码'
+              }
+            }, 1000)
             const {
               geetest_challenge: challenge,
               geetest_seccode: seccode,
@@ -127,7 +147,7 @@ export default {
                 validate
               }
             }).then(res => {
-              console.log(res)
+              console.log(res.data)
             })
           }).onError(function () {
           })
@@ -144,7 +164,6 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
-    // background-color: #ccc;
     background:url(./login_bg.jpg);
     .login-form-wrap {
       background-color: #fff;
@@ -159,8 +178,14 @@ export default {
 
         }
       }
+      .seed {
+        width: 100px;
+      }
       .btn-login {
         width: 100%;
+      }
+      .el-checkbox {
+        margin-right: 6px;
       }
     }
   }

@@ -13,9 +13,6 @@ export default {
     }
   },
   methods: {
-    handleClick () {
-      window.alert(111)
-    }
   }
 }
 </script>
