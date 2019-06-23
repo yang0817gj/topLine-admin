@@ -63,7 +63,8 @@ export default {
         ]
       },
       codeSecons: initCodeSeconds, // 倒计时的时间
-      codeTimer: null // 倒计时定时器
+      codeTimer: null, // 倒计时定时器
+      sendMobile: '' // 保存初始化验证码之后发送短信的手机号
     }
   },
   methods: {
@@ -100,25 +101,28 @@ export default {
       })
     },
     handleSendCode () {
-      this.$refs['loginForm'].validateField('mobile', (errorMessage) => {
-        console.log(errorMessage)
+      this.$refs['loginForm'].validateField('mobile', errorMessage => {
         if (errorMessage.trim().length > 0) {
-          return
+
         }
-        this.showGeetest()
       })
+      if (this.captchaObj) {
+        if (this.sendMobile !== this.loginForm.mobile) {
+          // 手机号发送改变
+          this.sendMobile = null
+          document.body.removeChild(document.querySelector('.geetest_panel'))
+          this.showGeetest()
+        } else {
+          this.captchaObj.verify()
+        }
+      } else {
+        this.showGeetest()
+      }
     },
     showGeetest () {
-      const { mobile } = this.loginForm
-
-      //  判断captchaObj对象存在，就不需要从新从服务器获取
-      if (this.captchaObj) {
-        return this.captchaObj.verify()
-      }
-
       axios({
         method: 'GET',
-        url: `http://ttapi.research.itcast.cn/mp/v1_0/captchas/${mobile}`
+        url: `http://ttapi.research.itcast.cn/mp/v1_0/captchas/${this.loginForm.mobile}`
       }).then(res => {
         const data = res.data.data
         window.initGeetest({
@@ -129,7 +133,8 @@ export default {
           product: 'bind'
         }, (captchaObj) => {
           this.captchaObj = captchaObj
-          captchaObj.onReady(function () {
+          captchaObj.onReady(() => {
+            this.sendMobile = this.loginForm.mobile
             captchaObj.verify()
           }).onSuccess(() => {
             const {
@@ -140,7 +145,7 @@ export default {
             //  调用 获取短信验证码 APL2 接口，发送短信
             axios({
               method: 'GET',
-              url: `http://ttapi.research.itcast.cn/mp/v1_0/sms/codes/${mobile}`,
+              url: `http://ttapi.research.itcast.cn/mp/v1_0/sms/codes/${this.loginForm.mobile}`,
               params: { // 专门用来传递 qeury 查询字符串参数
                 challenge,
                 seccode,
