@@ -15,7 +15,7 @@
               <el-input v-model="loginForm.code" placeholder="验证码"></el-input>
             </el-col>
             <el-col class="seed" :span="6" :offset="2">
-              <el-button @click="handleSendCode">{{text}}</el-button>
+              <el-button @click="handleSendCode">{{ codeTimer ? codeSecons + '后从新发送' : '发送验证码'}}</el-button>
             </el-col>
           </el-form-item>
           <el-form-item prop="agree">
@@ -35,6 +35,7 @@
 <script>
 import axios from 'axios'
 import '@/vendor/gt.js' // gt.js 会向全局 window 暴露一个函数 initGeetest 处理极验 验证码用的
+const initCodeSeconds = 60
 
 export default {
   name: 'AppLogin',
@@ -61,9 +62,8 @@ export default {
           { pattern: /true/, message: '请同意用户协议', trigger: 'change' }
         ]
       },
-      text: '获取验证码',
-      flag: null,
-      count: 60
+      codeSecons: initCodeSeconds, // 倒计时的时间
+      codeTimer: null // 倒计时定时器
     }
   },
   methods: {
@@ -110,7 +110,6 @@ export default {
     },
     showGeetest () {
       const { mobile } = this.loginForm
-      console.log(111)
 
       //  判断captchaObj对象存在，就不需要从新从服务器获取
       if (this.captchaObj) {
@@ -133,15 +132,6 @@ export default {
           captchaObj.onReady(function () {
             captchaObj.verify()
           }).onSuccess(() => {
-            var count = this.count
-            this.flag = window.setInterval(() => {
-              count--
-              this.text = count + '后从新发送'
-              if (count === 55) {
-                window.clearInterval(this.flag)
-                this.text = '获取验证码'
-              }
-            }, 1000)
             const {
               geetest_challenge: challenge,
               geetest_seccode: seccode,
@@ -157,12 +147,22 @@ export default {
                 validate
               }
             }).then(res => {
+              this.codeCountDown()
               console.log(res.data)
             })
-          }).onError(function () {
           })
         })
       })
+    },
+    codeCountDown () {
+      this.codeTimer = window.setInterval(() => {
+        this.codeSecons--
+        if (this.codeSecons <= 55) {
+          this.codeSecons = initCodeSeconds // 让倒计时时间回到初始状态
+          window.clearInterval(this.codeTimer) // 清除倒计时
+          this.codeTimer = null // 清除倒计时定时器的标志
+        }
+      }, 1000)
     }
   }
 }
