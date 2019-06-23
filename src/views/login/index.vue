@@ -15,7 +15,7 @@
               <el-input v-model="loginForm.code" placeholder="验证码"></el-input>
             </el-col>
             <el-col class="seed" :span="6" :offset="2">
-              <el-button @click="handleSendCode">{{ codeTimer ? codeSecons + '后从新发送' : '发送验证码'}}</el-button>
+              <el-button @click="handleSendCode" :disabled="!!codeTimer || codeLoading">{{ codeTimer ? codeSecons + '后从新发送' : '发送验证码'}}</el-button>
             </el-col>
           </el-form-item>
           <el-form-item prop="agree">
@@ -64,7 +64,8 @@ export default {
       },
       codeSecons: initCodeSeconds, // 倒计时的时间
       codeTimer: null, // 倒计时定时器
-      sendMobile: '' // 保存初始化验证码之后发送短信的手机号
+      sendMobile: '', // 保存初始化验证码之后发送短信的手机号
+      codeLoading: false
     }
   },
   methods: {
@@ -120,6 +121,7 @@ export default {
       }
     },
     showGeetest () {
+      this.codeLoading = true
       axios({
         method: 'GET',
         url: `http://ttapi.research.itcast.cn/mp/v1_0/captchas/${this.loginForm.mobile}`
@@ -136,6 +138,7 @@ export default {
           captchaObj.onReady(() => {
             this.sendMobile = this.loginForm.mobile
             captchaObj.verify()
+            this.codeLoading = false
           }).onSuccess(() => {
             const {
               geetest_challenge: challenge,
