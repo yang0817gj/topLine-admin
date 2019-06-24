@@ -3,7 +3,7 @@ import Router from 'vue-router'
 
 Vue.use(Router)
 
-export default new Router({
+const router = new Router({
   routes: [
     {
       // 路由的名字，和组件名没关系，说白了就是 path 的别名
@@ -16,9 +16,39 @@ export default new Router({
       component: () => import('@/views/login')
     },
     {
-      name: 'home',
       path: '/',
-      component: () => import('@/views/home')
+      component: () => import('@/views/layout'),
+      children: [
+        {
+          name: 'home',
+          path: '',
+          component: () => import('@/views/home')
+        },
+        {
+          name: 'publish',
+          path: '/publish',
+          component: () => import('@/views/publish')
+        }
+      ]
     }
   ]
 })
+router.beforeEach((to, from, next) => {
+  const userInfo = JSON.parse(window.localStorage.getItem('userInfo'))
+  if (to.path !== '/login') {
+    if (userInfo) {
+      next()
+    } else {
+      next({
+        path: '/login'
+      })
+    }
+  } else {
+    if (userInfo) {
+      next(false)
+    } else {
+      next()
+    }
+  }
+})
+export default router

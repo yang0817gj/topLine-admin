@@ -87,6 +87,8 @@ export default {
         this.loginLoading = false
         //  element 提供了Message 消息提供组件
         //  这也是组件调用的一种形式
+        console.log(res)
+        window.localStorage.setItem('userInfo', JSON.stringify(res.data.data))
         this.$message({
           message: '恭喜你，登录成功',
           type: 'success'
