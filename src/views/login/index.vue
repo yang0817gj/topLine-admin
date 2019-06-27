@@ -33,7 +33,7 @@
 </template>
 
 <script>
-import axios from 'axios'
+// import this.$http from 'this.$http'
 import '@/vendor/gt.js' // gt.js 会向全局 window 暴露一个函数 initGeetest 处理极验 验证码用的
 const initCodeSeconds = 60
 
@@ -42,8 +42,8 @@ export default {
   data () {
     return {
       loginForm: {
-        mobile: '13273519985',
-        code: '',
+        mobile: '13911111111',
+        code: '246810',
         agree: ''
       },
       loginLoading: false, // 登录按钮的 loading 状态
@@ -79,16 +79,15 @@ export default {
     },
     submitLogin () {
       this.loginLoading = true
-      axios({
+      this.$http({
         method: 'POST',
-        url: 'http://ttapi.research.itcast.cn/mp/v1_0/authorizations',
+        url: '/authorizations',
         data: this.loginForm
-      }).then(res => { // 200 400 之间
+      }).then(data => { // 200 400 之间
         this.loginLoading = false
         //  element 提供了Message 消息提供组件
         //  这也是组件调用的一种形式
-        console.log(res)
-        window.localStorage.setItem('userInfo', JSON.stringify(res.data.data))
+        window.localStorage.setItem('userInfo', JSON.stringify(data))
         this.$message({
           message: '恭喜你，登录成功',
           type: 'success'
@@ -124,11 +123,11 @@ export default {
     },
     showGeetest () {
       this.codeLoading = true
-      axios({
+      this.$http({
         method: 'GET',
-        url: `http://ttapi.research.itcast.cn/mp/v1_0/captchas/${this.loginForm.mobile}`
-      }).then(res => {
-        const data = res.data.data
+        url: `/captchas/${this.loginForm.mobile}`
+      }).then(data => {
+        // const data = res.data.data
         window.initGeetest({
           gt: data.gt,
           challenge: data.challenge,
@@ -148,17 +147,17 @@ export default {
               geetest_validate: validate } =
             captchaObj.getValidate()
             //  调用 获取短信验证码 APL2 接口，发送短信
-            axios({
+            this.$http({
               method: 'GET',
-              url: `http://ttapi.research.itcast.cn/mp/v1_0/sms/codes/${this.loginForm.mobile}`,
+              url: `/sms/codes/${this.loginForm.mobile}`,
               params: { // 专门用来传递 qeury 查询字符串参数
                 challenge,
                 seccode,
                 validate
               }
-            }).then(res => {
+            }).then(data => {
               this.codeCountDown()
-              console.log(res.data)
+              // console.log(data)
             })
           })
         })

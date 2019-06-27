@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import nprogress from 'nprogress'
 
 Vue.use(Router)
 
@@ -28,12 +29,18 @@ const router = new Router({
           name: 'publish',
           path: '/publish',
           component: () => import('@/views/publish')
+        },
+        {
+          name: 'article',
+          path: '/article',
+          component: () => import('@/views/article')
         }
       ]
     }
   ]
 })
 router.beforeEach((to, from, next) => {
+  nprogress.start()
   const userInfo = JSON.parse(window.localStorage.getItem('userInfo'))
   if (to.path !== '/login') {
     if (userInfo) {
@@ -51,4 +58,9 @@ router.beforeEach((to, from, next) => {
     }
   }
 })
+
+router.afterEach((to, from) => {
+  nprogress.done()
+})
+
 export default router
