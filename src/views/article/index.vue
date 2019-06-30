@@ -17,7 +17,7 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="频道列表">
-          <el-select v-model="statusTypes.channel_id" placeholder="请选择">
+          <!-- <el-select v-model="statusTypes.channel_id" placeholder="请选择">
             <el-option label="全部频道" value=""></el-option>
             <el-option
               v-for="item in channels"
@@ -25,7 +25,8 @@
               :label="item.name"
               :value="item.id">
             </el-option>
-          </el-select>
+          </el-select> -->
+          <ArticleChannel v-model="statusTypes.channel_id"></ArticleChannel>
         </el-form-item>
         <el-form-item label="时间">
           <el-date-picker
@@ -79,7 +80,16 @@
         <el-table-column
           label="状态">
           <template slot-scope="scope">
-            <el-button type="primary" icon="el-icon-edit" circle></el-button>
+            <el-button type="primary"
+              icon="el-icon-edit"
+              circle
+              @click="$router.push({
+                name: 'publish-edit',
+                params: {
+                  id: scope.row.id
+                }
+              })">
+            </el-button>
             <el-button type="danger" icon="el-icon-delete" circle @click="handleDelete(scope.row)"></el-button>
           </template>
         </el-table-column>
@@ -98,8 +108,13 @@
 </template>
 
 <script>
+import ArticleChannel from '@/components/article-channel'
+
 export default {
   name: 'APPArticle',
+  components: {
+    ArticleChannel
+  },
   created () {
     this.handleShow() // 加载数据
     this.handleChannels() // 加载频道
@@ -183,7 +198,6 @@ export default {
 
     // 删除按钮
     handleDelete (article) {
-      console.log(article)
       this.$confirm('确认删除吗？', '删除提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -201,7 +215,7 @@ export default {
           })
 
           // 重新加载数据列表
-          this.loadArticles(this.page)
+          this.handleShow(this.page)
         })
       }).catch(() => { // 取消执行
         this.$message({

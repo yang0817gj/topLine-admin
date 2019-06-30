@@ -4,6 +4,7 @@ import App from './App.vue'
 // 优先查找文件，如果文件找不到则找目录
 // 找到目录，优先加载目录中的index.js
 import router from './router'
+import store from './store'
 import './styles/index.less'
 import 'nprogress/nprogress.css'
 import JSONbig from 'json-bigint'
@@ -27,6 +28,7 @@ axios.defaults.transformResponse = [function (data) {
 
 axios.interceptors.request.use(config => {
   // Do something before request is sent
+  console.log(config)
   const userInfo = JSON.parse(window.localStorage.getItem('userInfo'))
   if (userInfo) {
     config.headers.Authorization = `Bearer ${userInfo.token}`
@@ -43,6 +45,7 @@ axios.interceptors.request.use(config => {
 axios.interceptors.response.use(response => {
   // Do something with response data
   // return response.data.data
+  console.log(response)
   // console.log('response => ', response)
   if (typeof response.data === 'object') {
     return response.data.data
@@ -71,5 +74,6 @@ Vue.config.productionTip = false
 
 new Vue({
   router,
+  store,
   render: h => h(App)
 }).$mount('#app')

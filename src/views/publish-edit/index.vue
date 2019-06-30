@@ -45,6 +45,9 @@ export default {
     quillEditor,
     ArticleChannel
   },
+  created () {
+    this.handleLoadActicle()
+  },
   data () {
     return {
       publishForm: {
@@ -72,6 +75,17 @@ export default {
         this.$router.push({
           name: 'article'
         })
+      })
+    },
+
+    handleLoadActicle () {
+      const id = this.$route.params.id
+      this.$http({
+        method: 'GET',
+        url: `/articles/${id}`
+      }).then(data => {
+        console.log(data)
+        this.publishForm = data
       })
     }
   }

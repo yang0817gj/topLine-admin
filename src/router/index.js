@@ -31,9 +31,29 @@ const router = new Router({
           component: () => import('@/views/publish')
         },
         {
+          name: 'publish-edit',
+          path: '/publish-edit/:id',
+          component: () => import('@/views/publish-edit')
+        },
+        {
           name: 'article',
           path: '/article',
           component: () => import('@/views/article')
+        },
+        {
+          name: 'comment',
+          path: '/comment',
+          component: () => import('@/views/comment')
+        },
+        {
+          name: 'account',
+          path: '/account',
+          component: () => import('@/views/account')
+        },
+        {
+          name: 'material',
+          path: '/material',
+          component: () => import('@/views/material')
         }
       ]
     }

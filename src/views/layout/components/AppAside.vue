@@ -4,6 +4,7 @@
     class="el-menu-vertical-demo"
     @open="handleOpen"
     @close="handleClose"
+    :unique-opened="true"
     router
     background-color="#545c64"
     text-color="#fff"
@@ -20,8 +21,8 @@
       <el-menu-item-group>
         <el-menu-item index="/publish">发布文章</el-menu-item>
         <el-menu-item index="/article">内容列表</el-menu-item>
-        <el-menu-item index="1-2">评论列表</el-menu-item>
-        <el-menu-item index="1-2">素材管理</el-menu-item>
+        <el-menu-item index="/comment">评论列表</el-menu-item>
+        <el-menu-item index="/material">素材管理</el-menu-item>
       </el-menu-item-group>
     </el-submenu>
     <el-submenu index="2">
@@ -36,7 +37,7 @@
         <el-menu-item index="2-5">粉丝列表</el-menu-item>
       </el-menu-item-group>
     </el-submenu>
-    <el-menu-item index="3">
+    <el-menu-item index="/account">
       <i class="el-icon-setting"></i>
       <span slot="title">账户信息</span>
     </el-menu-item>

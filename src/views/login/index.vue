@@ -42,9 +42,9 @@ export default {
   data () {
     return {
       loginForm: {
-        mobile: '13911111111',
+        mobile: '13273519987',
         code: '246810',
-        agree: ''
+        agree: true
       },
       loginLoading: false, // 登录按钮的 loading 状态
       captchaObj: null, // 通过initGeetest 的得到极验对象

@@ -4,13 +4,13 @@
     <el-col :span="4" :offset="8"><div class="grid-content bg-purple-light">
       <el-dropdown trigger="click">
         <span class="el-dropdown-link">
-          <img :src="userInfo.photo" />
-          {{userInfo.name}}<i class="el-icon-arrow-down el-icon--right"></i>
+          <img :src="$store.state.user.photo" />
+          {{$store.state.user.name}}<i class="el-icon-arrow-down el-icon--right"></i>
         </span>
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item>个人中心</el-dropdown-item>
           <el-dropdown-item>git地址</el-dropdown-item>
-          <el-dropdown-item>退出</el-dropdown-item>
+          <el-dropdown-item @click.native="handleLogout">退出</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
     </div></el-col>
@@ -20,15 +20,18 @@
 <script>
 export default {
   created () {
-    this.userInfo = JSON.parse(window.localStorage.getItem('userInfo'))
   },
   data () {
     return {
-      userInfo: {}
     }
   },
   methods: {
-
+    handleLogout () {
+      window.localStorage.removeItem('userInfo')
+      this.$router.push({
+        path: 'login'
+      })
+    }
   }
 }
 </script>
