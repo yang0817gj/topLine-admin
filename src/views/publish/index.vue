@@ -15,12 +15,19 @@
         </quill-editor>
       </el-form-item>
       <el-form-item label="封面">
-        <el-radio-group v-model="publishForm.cover">
-          <el-radio label="单图"></el-radio>
-          <el-radio label="三图"></el-radio>
-          <el-radio label="无图"></el-radio>
-          <el-radio label="自动"></el-radio>
+        <el-radio-group v-model="publishForm.cover.type">
+          <el-radio :label="1">单图</el-radio>
+          <el-radio :label="3">三图</el-radio>
+          <el-radio :label="0">无图</el-radio>
+          <el-radio :label="-1">自动</el-radio>
         </el-radio-group>
+        <template v-if="publishForm.cover.type > 0">
+          <el-row class="loadphoto" >
+            <el-col :span="4" :offset="1" v-for="n in publishForm.cover.type" :key="n">
+              <uploadImage v-model="publishForm.cover.images[n-1]"></uploadImage>
+            </el-col>
+          </el-row>
+        </template>
       </el-form-item>
       <el-form-item label="频道">
         <article-channel v-model="publishForm.channel_id"></article-channel>
@@ -39,11 +46,13 @@ import 'quill/dist/quill.core.css'
 import 'quill/dist/quill.snow.css'
 import 'quill/dist/quill.bubble.css'
 import ArticleChannel from '@/components/article-channel'
+import uploadImage from './components/upload-image'
 export default {
   name: 'AppPublish',
   components: {
     quillEditor,
-    ArticleChannel
+    ArticleChannel,
+    uploadImage
   },
   data () {
     return {
@@ -52,32 +61,50 @@ export default {
         content: '',
         cover: {
           type: 1,
-          images: ['http://toutiao.meiduo.site/FrPkPk9sKlIzM0pYJ__bY4UphWEe']
+          images: []
         },
         channel_id: 1
       },
       editorOption: {}
+
     }
   },
   methods: {
     handleArticle (draft) {
-      this.$http({
-        method: 'POST',
-        url: '/articles',
-        params: {
-          draft
-        },
-        data: this.publishForm
-      }).then(() => {
+      try {
+        this.$http({
+          method: 'POST',
+          url: '/articles',
+          params: {
+            draft
+          },
+          data: this.publishForm
+        })
         this.$router.push({
           name: 'article'
         })
-      })
+      } catch (err) {
+        console.log(err)
+      }
     }
   }
 }
 </script>
 
-<style lang="less" scoped>
+<style lang="less">
+
+  .loadphoto {
+    margin-top: 20px;
+  }
+  .box-wrap {
+    width: 200px;
+    height: 200px;
+    border: 1px solid #eee;
+    cursor: pointer;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
 
 </style>

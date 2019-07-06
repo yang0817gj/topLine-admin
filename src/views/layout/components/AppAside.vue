@@ -31,7 +31,7 @@
         <span>粉丝管理</span>
       </template>
       <el-menu-item-group>
-        <el-menu-item index="2-1">图文数据</el-menu-item>
+        <el-menu-item index="/echarts">图文数据</el-menu-item>
         <el-menu-item index="2-3">粉丝概况</el-menu-item>
         <el-menu-item index="2-4">粉丝画像</el-menu-item>
         <el-menu-item index="2-5">粉丝列表</el-menu-item>

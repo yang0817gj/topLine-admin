@@ -88,6 +88,8 @@ export default {
         //  element 提供了Message 消息提供组件
         //  这也是组件调用的一种形式
         window.localStorage.setItem('userInfo', JSON.stringify(data))
+        this.$store.commit('changeUser11', data)
+        console.log(data)
         this.$message({
           message: '恭喜你，登录成功',
           type: 'success'
@@ -96,6 +98,7 @@ export default {
           name: 'home'
         })
       }).catch(err => { // 大于400
+        this.$message.error('登录失败')
         if (err.response.status === 400) {
           this.$message.error('登录失败，手机号或者验证码不对')
         }

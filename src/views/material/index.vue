@@ -4,9 +4,9 @@
       <span>卡片名称</span>
     </div>
 
-    <el-radio-group v-model="radio1">
-      <el-radio-button label="全部" @click.native="loadImages(false)"></el-radio-button>
-      <el-radio-button label="收藏" @click.native="loadImages(true)"></el-radio-button>
+    <el-radio-group v-model="radio1" @change="handleChange">
+      <el-radio-button label="全部" ></el-radio-button>
+      <el-radio-button label="收藏" ></el-radio-button>
     </el-radio-group>
     <el-upload
       action="http://ttapi.research.itcast.cn/mp/v1_0/user/images"
@@ -23,7 +23,7 @@
       <el-button size="small" type="primary">{{!uploadLoding ? '点击上传' : '正在上传中'}}</el-button>
     </el-upload>
     <el-row>
-      <el-col :span="4" v-for="(item,index) in loadPhoto" :key="item.id" :offset="index % 5 == 0 ? 0 : 1" class="elCol">
+      <el-col ref="abc" :span="4" v-for="(item,index) in loadPhoto" :key="item.id" :offset="index % 5 == 0 ? 0 : 1" class="elCol">
         <el-card :body-style="{ padding: '0px' }" :offset="2">
           <img :src="item.url" class="image">
           <div style="padding: 14px;">
@@ -35,6 +35,15 @@
         </el-card>
       </el-col>
     </el-row>
+    <div class="block">
+      <el-pagination
+        layout="prev, pager, next"
+        :current-page="page"
+        @current-change="handlePage"
+        :total="total_count"
+        :page-size="per_page">
+      </el-pagination>
+    </div>
   </el-card>
 </template>
 
@@ -42,74 +51,119 @@
 export default {
   name: 'AppMaterial',
   created () {
-    this.loadImages()
+    this.loadImages(false)
   },
   data () {
     return {
       radio1: '全部',
       loadPhoto: [],
-      collect: false,
       fileList: '',
-      uploadLoding: false
+      uploadLoding: false,
+      total_count: 10,
+      page: 1,
+      per_page: 0,
+      bool: false
     }
   },
   methods: {
-    loadImages (collect) {
-      this.$http({
-        method: 'GET',
-        url: '/user/images',
-        params: {
-          collect
+    // 加载图片
+    async loadImages () {
+      try {
+        if (this.radio1 === '全部') {
+          this.bool = false
+        } else {
+          this.bool = true
         }
-      }).then(data => {
+        const data = await this.$http({
+          method: 'GET',
+          url: '/user/images',
+          params: {
+            collect: this.bool,
+            page: this.page,
+            per_page: 5
+          }
+        })
+        this.total_count = data.total_count
+        this.per_page = data.per_page
         this.loadPhoto = data.results
-      })
+      } catch (err) {
+        console.log(err)
+      }
+    },
+    handleChange (item) {
+      this.page = 1
+      this.radio1 = item
+      this.loadImages()
     },
 
-    handleCollect (item) {
-      this.$http({
-        method: 'PUT',
-        url: `/user/images/${item.id}`,
-        data: {
-          collect: !item.is_collected
+    // 收藏或者取消i收藏
+    async handleCollect (item) {
+      try {
+        if (this.loadPhoto[0].id === item.id && this.$refs.abc.length === 1) {
+          this.page--
         }
-      }).then(data => {
+        const data = await this.$http({
+          method: 'PUT',
+          url: `/user/images/${item.id}`,
+          data: {
+            collect: !item.is_collected
+          }
+        })
         item.is_collected = data.collect
-      })
+        this.loadImages()
+      } catch (err) {
+        console.log(err)
+      }
     },
 
+    // 删除图片
     handleDel (item) {
-      this.$http({
-        method: 'DELETE',
-        url: `/user/images/${item.id}`
-      }).then(data => {
+      try {
+        this.$http({
+          method: 'DELETE',
+          url: `/user/images/${item.id}`
+        })
         this.$message({
           message: '恭喜你，删除成功',
           type: 'success'
         })
         this.loadImages()
-      }).catch(() => {
+      } catch (err) {
+        console.log(err)
         this.$message.error('删除失败')
-      })
+      }
     },
 
-    handleShow () {
-      this.uploadLoding = false
-      this.$message({
-        message: '恭喜你，添加成功',
-        type: 'success'
-      })
-      this.loadImages()
+    // 图片上传完成
+    async handleShow () {
+      try {
+        this.uploadLoding = false
+        this.$message({
+          message: '恭喜你，添加成功',
+          type: 'success'
+        })
+        this.loadImages(false)
+      } catch (err) {
+        console.log(err)
+      }
     },
 
+    // 图片上传时
     handleLoading () {
-      // console.log(11)
       this.uploadLoding = true
     },
 
+    // 图片上传错误
     uploadError () {
       this.uploadLoding = false
+    },
+
+    // 点击更改page
+    handlePage (page) {
+      this.page = page
+      this.loadImages()
     }
+
   }
 }
 </script>
@@ -129,5 +183,10 @@ export default {
 }
 .elCol {
   margin-bottom: 30px;
+}
+.block {
+  display: flex;
+  justify-content: center;
+  align-items: center
 }
 </style>

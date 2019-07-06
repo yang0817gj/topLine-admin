@@ -9,17 +9,22 @@
       <el-table-column
         prop="title"
         label="标题"
-        width="500">
+        width="400">
       </el-table-column>
       <el-table-column
         prop="total_comment_count"
-        width="200"
+        width="150"
         label="总评论数">
       </el-table-column>
       <el-table-column
         prop="fans_comment_count"
-        width="300"
+        width="150"
         label="粉丝数">
+      </el-table-column>
+      <el-table-column
+        prop="comment_status"
+        width="200"
+        label="状态">
       </el-table-column>
       <el-table-column
         label="操作">
@@ -74,6 +79,7 @@ export default {
         data.results.forEach(item => {
           item.loading = false
         })
+        console.log(data)
         this.total_count = data.total_count
         this.tableData = data.results
       })

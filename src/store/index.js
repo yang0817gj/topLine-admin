@@ -36,6 +36,9 @@ const store = new Vuex.Store({
       console.log(data)
       // 将修改之后的用户信息保存到本地存储
       window.localStorage.setItem('userInfo', JSON.stringify(state.user))
+    },
+    changeUser11 (state, data) {
+      state.user = data
     }
   }
 })

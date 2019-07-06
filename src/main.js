@@ -28,7 +28,6 @@ axios.defaults.transformResponse = [function (data) {
 
 axios.interceptors.request.use(config => {
   // Do something before request is sent
-  console.log(config)
   const userInfo = JSON.parse(window.localStorage.getItem('userInfo'))
   if (userInfo) {
     config.headers.Authorization = `Bearer ${userInfo.token}`
@@ -45,7 +44,6 @@ axios.interceptors.request.use(config => {
 axios.interceptors.response.use(response => {
   // Do something with response data
   // return response.data.data
-  console.log(response)
   // console.log('response => ', response)
   if (typeof response.data === 'object') {
     return response.data.data

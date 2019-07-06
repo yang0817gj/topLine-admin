@@ -53,35 +53,32 @@ export default {
     }
   },
   methods: {
-    async handleprofile () {
-      try {
-        const data = await this.$http({
-          method: 'GET',
-          url: '/user/profile'
-        })
+    handleprofile () {
+      this.$http({
+        method: 'GET',
+        url: '/user/profile'
+      }).then(data => {
         this.userInfo = data
-      } catch (err) {
-        console.log(err)
-      }
+      })
     },
 
-    async handleUpdate () {
-      try {
-        const { name, intro, email } = this.userInfo
-        const data = await this.$http({
-          method: 'PATCH',
-          url: '/user/profile',
-          data: {
-            name,
-            intro,
-            email
-          }
-        })
-
+    handleUpdate () {
+      const { name, intro, email } = this.userInfo
+      // console.log(name,intro,email)
+      this.$http({
+        method: 'PATCH',
+        url: '/user/profile',
+        data: {
+          name,
+          intro,
+          email
+        }
+      }).then(data => {
         this.$store.commit('changeUser', data)
-      } catch (err) {
+        console.log(data)
+      }).catch(err => {
         console.log(err)
-      }
+      })
     },
 
     handleAvatarSuccess (res, file) {
@@ -100,22 +97,19 @@ export default {
       return isJPG && isLt2M
     },
 
-    async handlephoto (item) {
-      try {
-        const photo = new FormData()
-        photo.append('photo', item.file)
-        const data = await this.$http({
-          method: 'PATCH',
-          url: '/user/photo',
-          data: photo
-        })
+    handlephoto (item) {
+      const photo = new FormData()
+      photo.append('photo', item.file)
+      this.$http({
+        method: 'PATCH',
+        url: '/user/photo',
+        data: photo
+      }).then(data => {
         this.userInfo.photo = data.photo
         this.$store.commit('changeUser', {
           photo: data.photo
         })
-      } catch (err) {
-        console.log(err)
-      }
+      })
     }
   }
 }
